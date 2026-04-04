@@ -96,7 +96,7 @@
     <!-- Reminder Modal -->
     <Transition name="fade-up">
         <div
-            class="fixed inset-0 z-40 flex items-center justify-center bg-black/40"
+            class="fixed inset-0 z-20 flex items-center justify-center bg-black/40"
             v-if="isModalReminderOpen"
         >
             <div

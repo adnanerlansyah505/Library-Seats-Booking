@@ -8,6 +8,20 @@
       "when": 1773213377129,
       "tag": "0000_abnormal_namor",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1775298735422,
+      "tag": "0001_famous_lilandra",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775307944884,
+      "tag": "0002_great_pride",
+      "breakpoints": true
     }
   ]
 }

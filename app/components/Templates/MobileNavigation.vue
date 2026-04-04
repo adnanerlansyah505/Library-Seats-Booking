@@ -1,5 +1,5 @@
 <template>
-    <footer class="fixed bottom-0 left-0 right-0 z-50 bg-white shadow border-t border-gray-300 py-4">
+    <footer class="fixed bottom-0 left-0 right-0 z-40 bg-white shadow border-t border-gray-300 py-4">
         <div class="flex items-center justify-between max-w-[85%] mx-auto text-center">
             <NuxtLink class="py-2 flex flex-col gap-1 font-medium" to="/">
                 <i class="ri-home-4-line text-xl"></i>

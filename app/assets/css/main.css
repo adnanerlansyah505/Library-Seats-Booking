@@ -62,3 +62,20 @@
       hover:bg-secondary/40;
   }
 }
+
+.fade-up-enter-active,
+.fade-up-leave-active {
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.fade-up-enter-from,
+.fade-up-leave-to {
+    opacity: 0;
+    transform: translateY(16px);
+}
+
+.fade-up-enter-to,
+.fade-up-leave-from {
+    opacity: 1;
+    transform: translateY(0);
+}

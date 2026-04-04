@@ -1,30 +1,42 @@
 <template>
-    <header class="bg-white shadow">
-        <div class="container p-4">
-            <div class="grid grid-cols-3 items-center">
-                <div class="flex justify-start">
-                    <button type="button" @click="handleBackClick" class="cursor-pointer shadow py-1 px-2 rounded-lg text-gray-600 hover:text-gray-800" v-if="showBackButton">
-                        <i class="ri-arrow-left-s-line text-xl"></i>
-                    </button>
-                </div>
-                <div class="text-center">
-                    <h3 class="text-lg font-semibold text-gray-800 whitespace-nowrap">{{ title }}</h3>
-                </div>
-                <div class="flex justify-end" v-if="route.path !== '/profile'">
-                    <NuxtLink to="/profile" class="w-12 h-12 rounded-full overflow-hidden">
-                        <img src="~/assets/images/photo-profile.png" alt="Photo Profile">
-                    </NuxtLink>
+    <div>
+        <header class="bg-white shadow">
+            <div class="container p-4">
+                <div class="grid grid-cols-3 items-center">
+                    <div class="flex justify-start">
+                        <button type="button" @click="handleBackClick" class="cursor-pointer shadow py-1 px-2 rounded-lg text-gray-600 hover:text-gray-800" v-if="showBackButton">
+                            <i class="ri-arrow-left-s-line text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-lg font-semibold text-gray-800 whitespace-nowrap">{{ title }}</h3>
+                    </div>
+                    <div class="flex justify-end">
+                        <!-- <NuxtLink to="/profile" class="w-12 h-12 rounded-full overflow-hidden" v-if="route.path !== '/profile'">
+                            <img src="~/assets/images/photo-profile.png" alt="Photo Profile">
+                        </NuxtLink> -->
+                        <button
+                            type="button"
+                            class="w-10 h-10 p-2 rounded-lg hover:bg-gray-200 transition duration-200 ease-in-out"
+                            @click="isAuthOpen = true"
+                        >
+                            <i class="ri-login-box-line text-xl"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
+        <AuthModal v-model="isAuthOpen" />
+    </div>
 </template>
 
 <script setup lang="ts">
 import { pageSeo } from '~/utils/constants/web/seo';
+import AuthModal from '~/components/Modals/AuthModal.vue';
 
 const route = useRoute();
 const router = useRouter();
+const isAuthOpen = ref(false);
 
 // Helper: support headerTitle as string or function(route)
 const resolveSeoValue = (value: any) => {
