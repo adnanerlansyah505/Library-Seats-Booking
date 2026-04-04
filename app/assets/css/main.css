@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@layer base {
+  button {
+    cursor: pointer;
+  }
+}
+
+@theme {
+  /* Brand colors */
+  --color-primary: #2563EB;   /* gray-800, matches your .router-link-active */
+  --color-secondary: #E8EDF2; /* blue-600, adjust as you like */
+  
+  /* Status colors */
+  --color-success: #16A34A;  /* green-600 */
+  --color-warning: #F97316;  /* orange-500 */
+  --color-danger: #DC2626;   /* red-600 */
+
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center
+      rounded-full px-5 py-2 text-sm font-semibold
+      transition-colors duration-150
+      disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  /* Solid buttons */
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary/90;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-gray-900 hover:bg-secondary/80;
+  }
+
+  .btn-success {
+    @apply bg-success text-white hover:bg-success/90;
+  }
+
+  .btn-warning {
+    @apply bg-warning text-white hover:bg-warning/90;
+  }
+
+  .btn-danger {
+    @apply bg-danger text-white hover:bg-danger/90;
+  }
+
+  .btn-white {
+    @apply bg-white text-gray-900 border border-gray-300 hover:bg-gray-100;
+  }
+
+  /* Outline buttons */
+  .btn-outline-primary {
+    @apply border border-primary text-primary bg-transparent
+      hover:bg-primary hover:text-white;
+  }
+
+  .btn-outline-secondary {
+    @apply border border-secondary text-primary bg-transparent
+      hover:bg-secondary/40;
+  }
+}
