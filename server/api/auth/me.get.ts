@@ -6,6 +6,7 @@ import type { JwtPayload } from '~/utils/types/auth.types'
 import type { User } from '~/utils/types/user.types'
 import { db } from '../../db/client'
 import { users } from '../../db/schemas/users'
+import { profiles } from '../../db/schemas/profiles'
 import { verifyToken, mapUser } from '../../utils/authTokens'
 
 interface MeResponse {
@@ -24,18 +25,30 @@ export default defineEventHandler(async (event: H3Event): Promise<MeResponse> =>
 
 		const payload = verifyToken<JwtPayload>(token)
 
-		const [userRow] = await db
-			.select()
+		const [result] = await db
+			.select({ user: users, profile: profiles })
 			.from(users)
+			.leftJoin(profiles, eq(profiles.userId, users.id))
 			.where(eq(users.id, payload.id))
 			.limit(1)
 
-		if (!userRow) {
+		if (!result?.user) {
 			throw createError({ statusCode: 404, statusMessage: 'User not found' })
 		}
 
+		const user: User = mapUser(result.user)
+
+		// Override name/phone/address fields with data from profiles table if available
+		if (result.profile) {
+			user.studentId = result.user.studentId
+			user.firstName = result.profile.firstName ?? user.firstName
+			user.lastName = result.profile.lastName ?? user.lastName
+			user.phone = result.profile.phone ?? user.phone
+			user.address = result.profile.address ?? user.address
+		}
+
 		return {
-			data: mapUser(userRow),
+			data: user,
 		}
 	}
 	catch (error: any) {

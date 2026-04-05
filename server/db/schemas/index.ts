@@ -3,3 +3,4 @@ export * from "./libraries";
 export * from "./seats";
 export * from "./reservations";
 export * from "./reminders";
+export * from "./profiles";

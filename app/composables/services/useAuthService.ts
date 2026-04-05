@@ -25,6 +25,10 @@ export const useAuthService = () => {
     /** Logout current session */
     logout: () => api.post<void, void>('/logout', {}),
 
+    updateProfile: (payload: Partial<User>) => api.put<void, Partial<User>>('/me', {
+      body: payload,
+    }),
+
     /** Refresh access token, no auth required for this call */
     refresh: (refreshToken: string) =>
       api.post<LoginResponse, { token: string }>('/refresh', {

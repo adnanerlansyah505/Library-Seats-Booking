@@ -121,6 +121,32 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
+        /** Update current user's profile (name, email, phone, address) */
+        async updateProfile(payload: {
+            firstName: string
+            lastName: string
+            email: string
+            phone?: string
+            address?: string
+        }) {
+            const { $api } = useNuxtApp()
+
+            try {
+                const response = await $api<{ data: User }>('/api/profile', {
+                    method: 'PUT',
+                    body: payload,
+                })
+
+                // Persist updated user in the auth store
+                this.user = response.data
+                return response.data
+            }
+            catch (error) {
+                console.error('Update profile failed:', error)
+                throw error
+            }
+        },
+
         async requestPasswordReset(email: string) {
             const authApi = useAuthService()
 

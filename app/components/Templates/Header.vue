@@ -12,59 +12,61 @@
                         <h3 class="text-lg font-semibold text-gray-800 whitespace-nowrap">{{ title }}</h3>
                     </div>
                     <div class="flex justify-end">
-                        <!-- Auth button / avatar -->
-                        <button
-                            v-if="!isAuthenticated"
-                            type="button"
-                            class="w-10 h-10 p-2 rounded-lg hover:bg-gray-200 transition duration-200 ease-in-out"
-                            @click="isAuthOpen = true"
-                        >
-                            <i class="ri-login-box-line text-xl"></i>
-                        </button>
-
-                        <div v-else class="relative">
+                        <!-- Auth button / avatar (only render after auth check is finished to avoid flicker) -->
+                        <template v-if="isAuthReady">
                             <button
+                                v-if="!isAuthenticated"
                                 type="button"
-                                class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center overflow-hidden hover:bg-primary/90 transition"
-                                @click="toggleUserMenu"
+                                class="w-10 h-10 p-2 rounded-lg hover:bg-gray-200 transition duration-200 ease-in-out"
+                                @click="isAuthOpen = true"
                             >
-                                <!-- User avatar image if available -->
-                                <img
-                                    v-if="userAvatarUrl"
-                                    :src="userAvatarUrl"
-                                    alt="User avatar"
-                                    class="w-full h-full object-cover"
-                                />
-                                <!-- Fallback: first letter of name/email -->
-                                <span v-else class="font-semibold text-sm">
-                                    {{ userInitial }}
-                                </span>
+                                <i class="ri-login-box-line text-xl"></i>
                             </button>
 
-                            <Transition name="fade">
-                                <div
-                                    v-if="isUserMenuOpen"
-                                    class="absolute right-0 mt-2 w-40 rounded-lg bg-white shadow-lg border border-gray-100 py-1 text-sm z-10000"
+                            <div v-else class="relative">
+                                <button
+                                    type="button"
+                                    class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center overflow-hidden hover:bg-primary/90 transition"
+                                    @click="toggleUserMenu"
                                 >
-                                    <button
-                                        type="button"
-                                        class="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-2"
-                                        @click="goToProfile"
+                                    <!-- User avatar image if available -->
+                                    <img
+                                        v-if="userAvatarUrl"
+                                        :src="userAvatarUrl"
+                                        alt="User avatar"
+                                        class="w-full h-full object-cover"
+                                    />
+                                    <!-- Fallback: first letter of name/email -->
+                                    <span v-else class="font-semibold text-sm">
+                                        {{ userInitial }}
+                                    </span>
+                                </button>
+
+                                <Transition name="fade">
+                                    <div
+                                        v-if="isUserMenuOpen"
+                                        class="absolute right-0 mt-2 w-40 rounded-lg bg-white shadow-lg border border-gray-100 py-1 text-sm z-10000"
                                     >
-                                        <i class="ri-user-line text-base text-gray-500"></i>
-                                        <span>Profile</span>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-red-600"
-                                        @click="handleLogout"
-                                    >
-                                        <i class="ri-logout-box-r-line text-base"></i>
-                                        <span>Logout</span>
-                                    </button>
-                                </div>
-                            </Transition>
-                        </div>
+                                        <button
+                                            type="button"
+                                            class="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-2"
+                                            @click="goToProfile"
+                                        >
+                                            <i class="ri-user-line text-base text-gray-500"></i>
+                                            <span>Profile</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-red-600"
+                                            @click="handleLogout"
+                                        >
+                                            <i class="ri-logout-box-r-line text-base"></i>
+                                            <span>Logout</span>
+                                        </button>
+                                    </div>
+                                </Transition>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -100,6 +102,7 @@ const authStore = useAuthStore();
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 
 const isUserMenuOpen = ref(false);
+const isAuthReady = ref(false);
 
 const userInitial = computed(() => {
     const user = authStore.user;
@@ -108,8 +111,9 @@ const userInitial = computed(() => {
 });
 
 // Optional avatar URL support if backend adds it later
-const userAvatarUrl = computed<string | null>(() => {
-    return (authStore.user as any)?.avatarUrl ?? null;
+const userAvatarUrl = computed<string | undefined>(() => {
+    const url = (authStore.user as any)?.avatarUrl as string | undefined | null
+    return url || undefined
 });
 
 const successAlert = reactive({
@@ -138,10 +142,16 @@ onMounted(() => {
     }
 
     // Restore auth state from cookies and fetch user if already logged in
-    authStore.checkAuth().catch(() => {
-        // ignore errors here; user will just be treated as logged out
-    });
-})
+    authStore
+        .checkAuth()
+        .catch(() => {
+            // ignore errors here; user will just be treated as logged out
+        })
+        .finally(() => {
+            // Mark auth as resolved so we can safely render login/avatar without flicker
+            isAuthReady.value = true;
+        });
+});
 
 const showBackButton = computed(() => {
     if (route?.name === 'index') {
@@ -149,7 +159,7 @@ const showBackButton = computed(() => {
     }
     const showBack = pageSeo[route?.name as string]?.showBack;
     return showBack !== undefined ? showBack : hasHistory.value;
-})
+});
 
 const handleBackClick = () => {
     if (hasHistory.value) {

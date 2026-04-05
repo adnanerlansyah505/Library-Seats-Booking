@@ -8,6 +8,7 @@ export const profiles = pgTable('profiles', {
     firstName: varchar("first_name", { length: 255 }).notNull(),
     lastName: varchar("last_name", { length: 255 }).notNull(),
     phone: varchar("phone", { length: 20 }),
+    address: varchar("address", { length: 255 }),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
