@@ -53,6 +53,7 @@ async function main() {
     .insert(libraries)
     .values({
       name: 'Central Library',
+      slug: 'central-library',
       location: 'Main Campus, Building A',
       // You can use this in the UI as a hero/banner image
       // image URL is stored only in the frontend for now
@@ -63,6 +64,7 @@ async function main() {
     .insert(libraries)
     .values({
       name: 'Science & Technology Library',
+      slug: 'science-library',
       location: 'Science Block, 3rd Floor',
     })
     .returning();
@@ -78,6 +80,7 @@ async function main() {
     .values([
       {
         libraryId: centralLibrary!.id,
+        slug: 'c-a-01',
         code: 'C-A-01',
         label: 'Ground Floor - Window Seat 1',
         type: 'individual',
@@ -86,6 +89,7 @@ async function main() {
       },
       {
         libraryId: centralLibrary!.id,
+        slug: 'c-a-02',
         code: 'C-A-02',
         label: 'Ground Floor - Window Seat 2',
         type: 'individual',
@@ -94,6 +98,7 @@ async function main() {
       },
       {
         libraryId: centralLibrary!.id,
+        slug: 'c-g-01',
         code: 'C-G-01',
         label: 'Group Study Table 1',
         type: 'group',
@@ -108,6 +113,7 @@ async function main() {
     .values([
       {
         libraryId: scienceLibrary!.id,
+        slug: 's-pc-01',
         code: 'S-PC-01',
         label: 'Computer Seat 1',
         type: 'computer',
@@ -116,6 +122,7 @@ async function main() {
       },
       {
         libraryId: scienceLibrary!.id,
+        slug: 's-pc-02',
         code: 'S-PC-02',
         label: 'Computer Seat 2',
         type: 'computer',

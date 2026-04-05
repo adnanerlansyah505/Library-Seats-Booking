@@ -5,29 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1773213377129,
-      "tag": "0000_abnormal_namor",
+      "when": 1775395601114,
+      "tag": "0000_soft_changeling",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1775298735422,
-      "tag": "0001_famous_lilandra",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1775307944884,
-      "tag": "0002_great_pride",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1775369788290,
-      "tag": "0003_unique_lily_hollister",
+      "when": 1775395830805,
+      "tag": "0001_wide_patriot",
       "breakpoints": true
     }
   ]

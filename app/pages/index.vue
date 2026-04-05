@@ -23,7 +23,7 @@
                         class="w-full h-48 object-cover rounded-3xl"
                     />
                     <div class="py-4">
-                        <NuxtLink to="/bookings/modern-library" class="text-lg font-semibold text-gray-900 mb-1">
+                        <NuxtLink :to="`/bookings/${space.slug}`" class="text-lg font-semibold text-gray-900 mb-1">
                             {{ space.title }}
                         </NuxtLink>
                         <p class="text-primary leading-snug">
@@ -85,6 +85,7 @@ const pending = computed(() => !isLoaded.value || isLoading.value)
 const studySpaces = computed(() => {
     return topLibraries.value.map((lib, index) => ({
         id: lib.id,
+        slug: lib.slug,
         title: lib.name,
         description: lib.description || 'Discover our library facilities.',
         image: studyImages[index % studyImages.length],

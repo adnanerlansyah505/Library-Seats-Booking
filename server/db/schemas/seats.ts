@@ -5,6 +5,8 @@ export const seatTypeEnum = pgEnum("seat_type", ["individual", "group", "compute
 
 export const librarySeats = pgTable("library_seats", {
   id: serial("id").primaryKey(),
+  
+  slug: varchar("slug", { length: 255 }).unique(),
 
   libraryId: integer("library_id")
     .notNull()

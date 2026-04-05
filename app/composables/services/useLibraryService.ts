@@ -2,6 +2,7 @@ import { useServiceApi } from '../useServiceApi'
 
 export type Library = {
 	id: number
+    slug: string
 	name: string
 	description: string | null
 	location: string | null

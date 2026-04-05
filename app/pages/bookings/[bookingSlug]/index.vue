@@ -45,7 +45,7 @@
                         </div>
                     </div>
                     <NuxtLink
-                        :to="`/bookings/modern-library/seats/${seat.id.toLowerCase()}`"
+                        :to="`/bookings/${bookingSlug}/seats/${seat.id.toLowerCase()}`"
                         class="px-3 py-2 rounded-lg btn btn-secondary"
                     >
                         Book Now
@@ -66,49 +66,22 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
+
 import BookingDatePickerModal from '~/components/Booking/DatePickerModal.vue'
+import { useReservationStore } from '~/stores/reservation.store'
+import type { Seat } from '~/composables/services/useReservationService'
 
-type Seat = {
-    id: string
-    label: string
-    time: string
-    date: string // ISO yyyy-mm-dd
-    isAvailable: boolean
-}
-
-const allSeats: Seat[] = [
-    {
-        id: 'A1',
-        label: 'Seat A1',
-        time: '10:00 AM - 12:00 PM',
-        date: '2024-10-10',
-        isAvailable: true,
-    },
-    {
-        id: 'A2',
-        label: 'Seat A2',
-        time: '12:00 PM - 2:00 PM',
-        date: '2024-10-10',
-        isAvailable: false,
-    },
-    {
-        id: 'B1',
-        label: 'Seat B1',
-        time: '2:00 PM - 4:00 PM',
-        date: '2024-10-11',
-        isAvailable: true,
-    },
-    {
-        id: 'B2',
-        label: 'Seat B2',
-        time: '4:00 PM - 6:00 PM',
-        date: '2024-10-11',
-        isAvailable: false,
-    },
-]
+const route = useRoute()
+const reservationStore = useReservationStore()
+const { seats, isLoading } = storeToRefs(reservationStore)
 
 const isDatePickerOpen = ref(false)
 const selectedDate = ref<string | null>(null)
+
+const bookingSlug = computed(() => route.params.bookingSlug as string)
 
 const selectedDateLabel = computed(() => {
     if (!selectedDate.value) return 'Select date'
@@ -117,18 +90,32 @@ const selectedDateLabel = computed(() => {
     return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
 })
 
-const filteredSeats = computed(() => {
-    if (!selectedDate.value) return allSeats
-    return allSeats.filter((seat) => seat.date === selectedDate.value)
+const filteredSeats = computed<Seat[]>(() => {
+    if (!selectedDate.value) return seats.value
+    return seats.value.filter((seat: Seat) => seat.date === selectedDate.value)
 })
 
 const availableCount = computed(
-    () => filteredSeats.value.filter((seat) => seat.isAvailable).length,
+    () => filteredSeats.value.filter((seat: Seat) => seat.isAvailable).length,
 )
 
 const occupiedCount = computed(
-    () => filteredSeats.value.filter((seat) => !seat.isAvailable).length,
+    () => filteredSeats.value.filter((seat: Seat) => !seat.isAvailable).length,
 )
+
+// Initial fetch when page loads
+onMounted(() => {
+    if (bookingSlug.value) {
+        reservationStore.fetchSeats(bookingSlug.value)
+    }
+})
+
+// Refetch when date changes
+watch(selectedDate, (newDate) => {
+    if (bookingSlug.value) {
+        reservationStore.fetchSeats(bookingSlug.value, newDate || undefined)
+    }
+})
 </script>
 
 <style lang="scss" scoped>
