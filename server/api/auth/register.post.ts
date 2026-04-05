@@ -8,25 +8,7 @@ import type { User } from '~/utils/types/user.types'
 import { db } from '../../db/client'
 import { users } from '../../db/schemas/users'
 import { createTokensFromUser } from '../../utils/authTokens'
-
-function mapUser(row: typeof users.$inferSelect): User {
-  return {
-    id: row.id,
-    email: row.email,
-    firstName: row.username ?? undefined,
-    lastName: undefined,
-    role: row.role as User['role'],
-    phone: undefined,
-    isEmailVerified: row.isEmailVerified ?? false,
-    status: row.status ?? true,
-    emailVerificationToken: row.emailVerificationToken ?? undefined,
-    emailVerificationExpires: row.emailVerificationExpires
-      ? row.emailVerificationExpires.toISOString()
-      : undefined,
-    createdAt: row.createdAt?.toISOString?.() ?? new Date().toISOString(),
-    updatedAt: row.updatedAt?.toISOString?.() ?? new Date().toISOString(),
-  }
-}
+import { profiles } from '~~/server/db/schemas'
 
 export default defineEventHandler(async (event: H3Event): Promise<LoginResponse> => {
   try {
@@ -47,8 +29,8 @@ export default defineEventHandler(async (event: H3Event): Promise<LoginResponse>
     }
 
     const email = body.email.toLowerCase()
+    const username = email.split('@')[0] || '' // Simple username generation from email prefix
     const passwordHash = await bcrypt.hash(body.password, 10)
-    const username = body.username || ''
     const studentId = body.studentId || ''
 
     // Check if user already exists
@@ -82,6 +64,15 @@ export default defineEventHandler(async (event: H3Event): Promise<LoginResponse>
         statusMessage: 'Failed to create user',
       })
     }
+
+    // Create the profile record with default values
+    await db
+      .insert(profiles)
+      .values({
+        userId: created.id,
+        firstName: body.firstName?.trim() || '',
+        lastName: body.lastName?.trim() || '',
+      })
 
     const user = mapUser(created)
     const tokens = createTokensFromUser(user)

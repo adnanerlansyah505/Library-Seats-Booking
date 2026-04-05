@@ -40,7 +40,6 @@ export default defineEventHandler(async (event: H3Event): Promise<MeResponse> =>
 
 		// Override name/phone/address fields with data from profiles table if available
 		if (result.profile) {
-			user.studentId = result.user.studentId
 			user.firstName = result.profile.firstName ?? user.firstName
 			user.lastName = result.profile.lastName ?? user.lastName
 			user.phone = result.profile.phone ?? user.phone

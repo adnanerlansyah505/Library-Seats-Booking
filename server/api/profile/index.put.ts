@@ -15,6 +15,7 @@ interface UpdateProfileBody {
 	email?: string
 	phone?: string
 	address?: string
+	studentId?: string
 }
 
 interface UpdateProfileResponse {
@@ -43,6 +44,10 @@ export default defineEventHandler(async (event: H3Event): Promise<UpdateProfileR
 
 		if (typeof body.email === 'string' && body.email.trim()) {
 			updateUserData.email = body.email.trim().toLowerCase()
+		}
+
+		if (typeof body.studentId === 'string' && body.studentId.trim()) {
+			updateUserData.studentId = body.studentId.trim().toLowerCase()
 		}
 
 		if (typeof body.firstName === 'string') {
@@ -113,6 +118,7 @@ export default defineEventHandler(async (event: H3Event): Promise<UpdateProfileR
 			user.lastName = result.profile.lastName ?? user.lastName
 			user.phone = result.profile.phone ?? user.phone
 			user.address = result.profile.address ?? user.address
+			user.studentId = result.user.studentId ?? user.studentId
 		}
 
 		return { data: user }

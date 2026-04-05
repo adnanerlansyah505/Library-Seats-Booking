@@ -18,11 +18,11 @@ export const pageSeo: Record<string, SeoConfig> = {
         title: "Profile - Library Booking App",
         description: "Manage your profile and account settings"
     },
-    bookings: {
-        headerTitle: "Bookings",
-        title: "Bookings - Library Booking App",
-        description: "View and schedule your library seat bookings"
-    },
+    // bookings: {
+    //     headerTitle: "Bookings",
+    //     title: "Bookings - Library Booking App",
+    //     description: "View and schedule your library seat bookings"
+    // },
     search: {
         headerTitle: "Search Libraries",
         title: "Search - Library Booking App",

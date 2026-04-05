@@ -43,6 +43,7 @@ export interface RegisterRequest {
     lastName: string
     role: UserRole
     phone: string
+    studentId: string
 }
 
 export interface GoogleAuthRequest {

@@ -128,6 +128,7 @@ export const useAuthStore = defineStore('auth', {
             email: string
             phone?: string
             address?: string
+            studentId?: string
         }) {
             const { $api } = useNuxtApp()
 

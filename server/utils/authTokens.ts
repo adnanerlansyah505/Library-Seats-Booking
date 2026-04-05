@@ -27,9 +27,8 @@ function getJwtSecret(): string {
 export function mapUser(row: typeof users.$inferSelect): User {
     return {
         id: row.id,
+        studentId: row.studentId ?? undefined,
         email: row.email,
-        firstName: row.username ?? undefined,
-        lastName: undefined,
         role: row.role as User['role'],
         phone: undefined,
         isEmailVerified: row.isEmailVerified ?? false,

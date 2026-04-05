@@ -29,6 +29,17 @@
                 <div class="mt-4 space-y-4">
                     <!-- Edit form -->
                     <template v-if="isEditing">
+
+                        <div class="space-y-1">
+                            <label class="block text-sm font-medium text-gray-600" for="student-id">Student ID</label>
+                            <input
+                                id="student-id"
+                                v-model="profile.studentId"
+                                type="text"
+                                class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary bg-gray-100"
+                            />
+                        </div>
+
                         <div class="space-y-1">
                             <label class="block text-sm font-medium text-gray-600" for="full-name">Full Name <span class="text-red-400">*</span></label>
                             <input
@@ -94,12 +105,12 @@
 						
                         <div class="space-y-1">
                             <p class="text-sm text-gray-500">Phone Number</p>
-                            <p class="font-medium text-gray-900">{{ profile.phone }}</p>
+                            <p class="font-medium text-gray-900">{{ profile.phone || '-' }}</p>
                         </div>
 
                         <div class="space-y-1">
                             <p class="text-sm text-gray-500">Address</p>
-                            <p class="font-medium text-gray-900">{{ profile.address }}</p>
+                            <p class="font-medium text-gray-900">{{ profile.address|| '-' }}</p>
                         </div>
                     </template>
                 </div>
@@ -149,6 +160,7 @@ const saveEdit = async () => {
             email: profile.email,
             phone: profile.phone,
             address: profile.address,
+            studentId: profile.studentId,
         })
 
         // Sync local profile view with the updated user from the store/action

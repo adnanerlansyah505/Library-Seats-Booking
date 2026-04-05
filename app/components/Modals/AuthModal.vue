@@ -179,7 +179,9 @@
                         class="btn btn-primary w-full py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
                         :disabled="isSubmitting"
                     >
-                        <span v-if="isSubmitting">Creating account...</span>
+                        <span v-if="isSubmitting">
+                            Sending...
+                        </span>
                         <span v-else>Send verification code</span>
                     </button>
                 </form>
@@ -368,8 +370,40 @@ const backToForgot = () => {
     currentView.value = 'forgotPassword'
 }
 
-const close = () => {
+const resetState = () => {
+    // Reset view
     currentView.value = 'login'
+
+    // Clear forms
+    loginForm.email = ''
+    loginForm.password = ''
+    registerForm.studentId = ''
+    registerForm.name = ''
+    registerForm.email = ''
+    registerForm.password = ''
+    registerForm.confirmPassword = ''
+    forgotForm.email = ''
+    verifyForm.code = ''
+    resetForm.password = ''
+    resetForm.confirmPassword = ''
+
+    // Clear errors and flags
+    loginError.value = null
+    registerError.value = null
+    forgotError.value = null
+    verifyError.value = null
+    isSubmitting.value = false
+
+    // Reset countdown / timers
+    resendCountdown.value = 0
+    if (countdownTimer) {
+        window.clearInterval(countdownTimer)
+        countdownTimer = undefined
+    }
+}
+
+const close = () => {
+    resetState()
     emit('update:modelValue', false)
 }
 
