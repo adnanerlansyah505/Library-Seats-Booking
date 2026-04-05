@@ -1,5 +1,5 @@
 <template>
-    <div class="container p-4 pb-36">
+    <div class="p-4 pb-36">
         <div class="text-center">
             <h1 class="text-3xl font-semibold mb-3">Find Your Perfect Study Space</h1>
             <p class="text-gray-500 font-medium">Reserve your ideal study space with ease</p>
@@ -13,7 +13,7 @@
                 <article
                     v-for="space in studySpaces"
                     :key="space.id"
-                    class="min-w-[80%] max-w-sm flex-shrink-0 snap-center overflow-hidden"
+                    class="min-w-[80%] max-w-sm snap-center overflow-hidden"
                 >
                     <img
                         :src="space.image"

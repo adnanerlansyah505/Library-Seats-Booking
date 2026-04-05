@@ -1,5 +1,5 @@
 <template>
-    <div class="container px-4 pt-4 pb-32">
+    <div class="px-4 pt-4 pb-32">
         <div class="max-w-md mx-auto mt-4">
             <img
                 src="~/assets/images/photo-profile.png"

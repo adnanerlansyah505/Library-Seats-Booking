@@ -4,7 +4,7 @@
         <img src="~/assets/images/study-1.png" alt="Study Image" class="w-full h-auto" />
 
         <!-- main content + bottom-aligned button (no fixed positioning) -->
-        <div class="container p-4 flex-1 flex flex-col pb-30">
+        <div class="p-4 flex-1 flex flex-col pb-30">
             <div class="mb-4">
                 <h2 class="text-xl font-bold mb-2">Modern Library - Seat A1</h2>
                 <p class="text-gray-700 mb-4">Monday, July 15 · 10:00 AM - 12:00 PM</p>

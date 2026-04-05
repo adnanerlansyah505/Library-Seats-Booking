@@ -4,11 +4,12 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
+
   css: [
     './app/assets/css/main.css',
     'remixicon/fonts/remixicon.css'
   ],
-  
+
   app: {
     head: {
       title: 'Library Booking App',
@@ -46,14 +47,19 @@ export default defineNuxtConfig({
       prefix: 'Template'
     }
   ],
+
   plugins: [
   ],
+
   vite: {
     plugins: [
       tailwindcss() as any,
     ],
   },
+
   runtimeConfig: {
     databaseURL: process.env.DATABASE_URL
-  }
+  },
+
+  modules: ['@pinia/nuxt']
 })

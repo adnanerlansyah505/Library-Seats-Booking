@@ -18,6 +18,8 @@
                     </button>
                 </div>
 
+                <!-- Success alert UI is handled globally in Header via events -->
+
                 <!-- Tabs -->
                 <div
                     v-if="currentView === 'login' || currentView === 'register'"
@@ -67,15 +69,32 @@
                         <span></span>
                         <button type="button" class="hover:text-gray-700" @click="goToForgotPassword">Forgot password?</button>
                     </div>
-                    <button type="submit" class="btn btn-primary w-full py-2.5 rounded-lg text-sm font-semibold">
-                        Login
+                    <p v-if="loginError" class="text-xs text-red-500">
+                        {{ loginError }}
+                    </p>
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-full py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                        :disabled="isSubmitting"
+                    >
+                        <span v-if="isSubmitting">Logging in...</span>
+                        <span v-else>Login</span>
                     </button>
                 </form>
 
                 <!-- Register form -->
                 <form v-else-if="currentView === 'register'" class="space-y-4" @submit.prevent="submitRegister">
                     <div class="space-y-1">
-                        <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <label class="block text-sm font-medium text-gray-700">Student ID <span class="text-red-400">*</span></label>
+                        <input
+                            v-model="registerForm.studentId"
+                            type="text"
+                            class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="12345678"
+                        />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-sm font-medium text-gray-700">Full Name <span class="text-red-400">*</span></label>
                         <input
                             v-model="registerForm.name"
                             type="text"
@@ -85,7 +104,7 @@
                         />
                     </div>
                     <div class="space-y-1">
-                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <label class="block text-sm font-medium text-gray-700">Email <span class="text-red-400">*</span></label>
                         <input
                             v-model="registerForm.email"
                             type="email"
@@ -95,7 +114,7 @@
                         />
                     </div>
                     <div class="space-y-1">
-                        <label class="block text-sm font-medium text-gray-700">Password</label>
+                        <label class="block text-sm font-medium text-gray-700">Password <span class="text-red-400">*</span></label>
                         <input
                             v-model="registerForm.password"
                             type="password"
@@ -105,7 +124,7 @@
                         />
                     </div>
                     <div class="space-y-1">
-                        <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                        <label class="block text-sm font-medium text-gray-700">Confirm Password <span class="text-red-400">*</span></label>
                         <input
                             v-model="registerForm.confirmPassword"
                             type="password"
@@ -114,8 +133,16 @@
                             required
                         />
                     </div>
-                    <button type="submit" class="btn btn-primary w-full py-2.5 rounded-lg text-sm font-semibold">
-                        Create Account
+                    <p v-if="registerError" class="text-xs text-red-500">
+                        {{ registerError }}
+                    </p>
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-full py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                        :disabled="isSubmitting"
+                    >
+                        <span v-if="isSubmitting">Creating account...</span>
+                        <span v-else>Create Account</span>
                     </button>
                 </form>
 
@@ -138,14 +165,22 @@
                             required
                         />
                     </div>
+                    <p v-if="forgotError" class="text-xs text-red-500">
+                        {{ forgotError }}
+                    </p>
                     <div class="flex items-center justify-between text-xs text-gray-500">
                         <button type="button" class="hover:text-gray-700" @click="backToLogin">
                             Back to login
                         </button>
                         <span></span>
                     </div>
-                    <button type="submit" class="btn btn-primary w-full py-2.5 rounded-lg text-sm font-semibold">
-                        Send verification code
+                    <button
+                        type="submit"
+                        class="btn btn-primary w-full py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                        :disabled="isSubmitting"
+                    >
+                        <span v-if="isSubmitting">Creating account...</span>
+                        <span v-else>Send verification code</span>
                     </button>
                 </form>
 
@@ -180,10 +215,11 @@
                         <button
                             type="button"
                             class="font-medium text-primary disabled:text-gray-400 disabled:cursor-not-allowed"
-                            :disabled="!canResend"
+                            :disabled="!canResend || isSubmitting"
                             @click="resendCode"
                         >
-                            Resend code
+                            <span v-if="isSubmitting">Resending...</span>
+                            <span v-else>Resend code</span>
                             <span v-if="!canResend"> ({{ resendCountdown }}s)</span>
                         </button>
                     </div>
@@ -228,18 +264,28 @@
             </div>
         </div>
     </Transition>
-</template>
+ </template>
 
 <script setup lang="ts">
+import { useAuthStore } from '~/stores/auth.store'
+
 const props = defineProps<{
     modelValue: boolean
 }>()
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: boolean): void
+    (e: 'login-success', payload: { title: string; message: string }): void
+    (e: 'register-success', payload: { title: string; message: string }): void
 }>()
 
 const currentView = ref<'login' | 'register' | 'forgotPassword' | 'verifyCode' | 'resetPassword'>('login')
+
+const authStore = useAuthStore()
+const isSubmitting = ref(false)
+const loginError = ref<string | null>(null)
+const registerError = ref<string | null>(null)
+const forgotError = ref<string | null>(null)
 
 const headerTitle = computed(() => {
     switch (currentView.value) {
@@ -263,6 +309,7 @@ const loginForm = reactive({
 })
 
 const registerForm = reactive({
+    studentId: '',
     name: '',
     email: '',
     password: '',
@@ -282,8 +329,6 @@ const resetForm = reactive({
     confirmPassword: '',
 })
 
-const generatedCode = ref<string | null>(null)
-const codeExpiresAt = ref<number | null>(null)
 const resendCountdown = ref(0)
 const verifyError = ref<string | null>(null)
 
@@ -328,72 +373,197 @@ const close = () => {
     emit('update:modelValue', false)
 }
 
-const submitLogin = () => {
-    // TODO: integrate real auth logic
-    close()
+const submitLogin = async () => {
+    if (!loginForm.email || !loginForm.password) return
+
+    isSubmitting.value = true
+    loginError.value = null
+
+    try {
+        await authStore.login({
+            email: loginForm.email,
+            password: loginForm.password,
+        })
+
+        // Notify parent (Header) to show global success alert
+        emit('login-success', {
+            title: 'Login successful',
+            message: 'You have logged in successfully.',
+        })
+
+		// Close modal after successful login so the alert is fully visible
+		close()
+    }
+    catch (error: any) {
+        console.log(error)
+        // Try to extract a meaningful message from backend error
+        loginError.value =
+            error?.data?.message ||
+            error?.statusMessage ||
+            'Login failed. Please check your credentials and try again.'
+    }
+    finally {
+        isSubmitting.value = false
+    }
 }
 
-const submitRegister = () => {
-    // TODO: integrate real registration logic
-    close()
-}
-
-const submitForgotPassword = () => {
-    if (!forgotForm.email) {
+const submitRegister = async () => {
+    if (!registerForm.email || !registerForm.password || registerForm.password !== registerForm.confirmPassword) {
+        registerError.value = 'Please fill all fields and make sure passwords match.'
         return
     }
 
-    // Simulate sending code to email
-    generatedCode.value = String(Math.floor(100000 + Math.random() * 900000))
-    codeExpiresAt.value = Date.now() + 5 * 60 * 1000
-    verifyForm.code = ''
-    verifyError.value = null
-    startCountdown()
-    currentView.value = 'verifyCode'
+    isSubmitting.value = true
+    registerError.value = null
+
+    // Map simple form fields to RegisterRequest structure
+    const [firstNameRaw, ...rest] = registerForm.name.trim().split(' ')
+    const firstName = firstNameRaw || registerForm.email
+    const lastName = rest.join(' ') || firstName
+
+    try {
+        await authStore.register({
+            email: registerForm.email,
+            password: registerForm.password,
+            firstName,
+            lastName,
+            role: 'student',
+            phone: '',
+            username: registerForm.email,
+            studentId: registerForm.studentId,
+        })
+
+        // After successful registration, switch to login view
+        currentView.value = 'login'
+
+        // Notify parent (Header) to show global success alert
+        emit('register-success', {
+            title: 'Account created',
+            message: 'Account created successfully. You can now log in.',
+        })
+
+		// Optionally close modal after successful registration as well
+		close()
+    }
+    catch (error: any) {
+        registerError.value =
+            error?.data?.message ||
+            error?.statusMessage ||
+            'Registration failed. Please try again.'
+    }
+    finally {
+        isSubmitting.value = false
+    }
 }
 
-const resendCode = () => {
+const submitForgotPassword = async () => {
+    if (!forgotForm.email) {
+        forgotError.value = 'Please enter your email.'
+        return
+    }
+
+    isSubmitting.value = true
+    forgotError.value = null
+    verifyError.value = null
+
+    try {
+		await authStore.requestPasswordReset(forgotForm.email)
+
+        // Start countdown and go to verify-code step
+        startCountdown()
+        verifyForm.code = ''
+        currentView.value = 'verifyCode'
+    }
+    catch (error: any) {
+        forgotError.value =
+            error?.data?.message ||
+            error?.statusMessage ||
+            'Unable to send verification code. Please try again.'
+    }
+    finally {
+        isSubmitting.value = false
+    }
+}
+
+const resendCode = async () => {
     if (!canResend.value || !forgotForm.email) return
 
-    generatedCode.value = String(Math.floor(100000 + Math.random() * 900000))
-    codeExpiresAt.value = Date.now() + 5 * 60 * 1000
-    startCountdown()
+    try {
+		await authStore.requestPasswordReset(forgotForm.email)
+        startCountdown()
+    }
+    catch (error: any) {
+        verifyError.value =
+            error?.data?.message ||
+            error?.statusMessage ||
+            'Unable to resend verification code. Please try again.'
+    }
 }
 
-const submitVerifyCode = () => {
-    if (!generatedCode.value || !codeExpiresAt.value) {
-        verifyError.value = 'No verification code has been generated.'
-        return
-    }
-    if (Date.now() > codeExpiresAt.value) {
-        verifyError.value = 'The verification code has expired. Please resend the code.'
-        return
-    }
-    if (verifyForm.code !== generatedCode.value) {
-        verifyError.value = 'Invalid verification code. Please check and try again.'
+const submitVerifyCode = async () => {
+    if (!forgotForm.email || !verifyForm.code) {
+        verifyError.value = 'Please enter the verification code.'
         return
     }
 
     verifyError.value = null
-    currentView.value = 'resetPassword'
+
+    try {
+		await authStore.verifyResetCode(forgotForm.email, verifyForm.code)
+        currentView.value = 'resetPassword'
+    }
+    catch (error: any) {
+        verifyError.value =
+            error?.data?.message ||
+            error?.statusMessage ||
+            'Invalid or expired verification code. Please try again.'
+    }
 }
 
-const submitResetPassword = () => {
+const submitResetPassword = async () => {
     if (!resetForm.password || resetForm.password !== resetForm.confirmPassword) {
-        // Optionally show validation feedback here
+        // Basic validation feedback
+        verifyError.value = 'Passwords do not match.'
+        return
+    }
+    if (!forgotForm.email || !verifyForm.code) {
+        verifyError.value = 'Verification code is missing. Please restart the reset process.'
         return
     }
 
-    // Simulate successful password change
-    generatedCode.value = null
-    codeExpiresAt.value = null
-    resendCountdown.value = 0
-    resetForm.password = ''
-    resetForm.confirmPassword = ''
-    verifyForm.code = ''
+    isSubmitting.value = true
+    verifyError.value = null
 
-    currentView.value = 'login'
-    close()
+    try {
+        await authStore.resetPassword({
+            email: forgotForm.email,
+            code: verifyForm.code,
+            password: resetForm.password,
+        })
+
+        // Clear local state
+        resendCountdown.value = 0
+        resetForm.password = ''
+        resetForm.confirmPassword = ''
+        verifyForm.code = ''
+
+        // Inform parent so it can show a success toast
+        emit('login-success', {
+            title: 'Password updated',
+            message: 'Your password has been changed. You can now log in.',
+        })
+
+        currentView.value = 'login'
+    }
+    catch (error: any) {
+        verifyError.value =
+            error?.data?.message ||
+            error?.statusMessage ||
+            'Unable to reset password. Please try again.'
+    }
+    finally {
+        isSubmitting.value = false
+    }
 }
 </script>
 

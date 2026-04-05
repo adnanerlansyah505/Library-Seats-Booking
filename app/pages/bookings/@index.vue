@@ -1,5 +1,5 @@
 <template>
-    <div class="container px-4 pt-4 pb-32">
+    <div class="px-4 pt-4 pb-32">
         <div class="grid grid-cols-2 items-center gap-2 bg-gray-300 rounded-lg max-w-sm mx-auto p-1">
             <button type="button" class="btn btn-white px-4 rounded-lg font-medium">
                 Individual

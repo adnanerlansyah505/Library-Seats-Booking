@@ -1,4 +1,4 @@
-import type { SeoValue } from "@/utils/types/seo"
+import type { SeoValue } from "~/utils/types/seo.types"
 import type { RouteLocationNormalizedLoaded } from "vue-router"
 
 export const humanizeSlug = (raw: string | string[] | undefined) => {

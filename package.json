@@ -15,11 +15,15 @@
     "seed": "tsx server/db/seeder.ts"
   },
   "dependencies": {
+    "@pinia/nuxt": "^0.11.3",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/vite": "^4.2.2",
     "axios": "^1.13.6",
+    "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.8",
     "drizzle-orm": "^0.45.1",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^8.0.4",
     "nuxt": "^4.3.1",
     "pg": "^8.20.0",
     "postgres": "^3.4.8",
@@ -30,7 +34,10 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.4.0",
+    "@types/nodemailer": "^8.0.0",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.9",
     "ts-node": "^10.9.2",

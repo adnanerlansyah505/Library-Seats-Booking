@@ -1,4 +1,4 @@
-import type { SeoConfig } from "~/utils/types/seo";
+import type { SeoConfig } from "~/utils/types/seo.types";
 import { humanizeSlug } from "~/utils/helpers/slug";
 
 export const defaultSeo: SeoConfig = {

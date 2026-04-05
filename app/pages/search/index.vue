@@ -1,5 +1,5 @@
 <template>
-    <div class="container p-4 pb-24 space-y-6">
+    <div class="p-4 pb-24 space-y-6">
         <!-- Search input -->
         <SearchSearchInput v-model="query" @submit="handleSearchSubmit" />
 

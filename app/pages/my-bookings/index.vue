@@ -1,5 +1,5 @@
 <template>
-    <div class="container p-4">
+    <div class="p-4">
         <div class="mb-8">
             <h3 class="text-lg font-semibold">Upcoming</h3>
             <div class="space-y-3 mt-4">

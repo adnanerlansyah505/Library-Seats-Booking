@@ -1,6 +1,6 @@
 <template>
-    <Transition name="fade">
-        <div v-if="isVisible" :class="outerClasses">
+    <Transition :name="transitionName">
+        <div v-if="isVisible" :class="outerClasses" id="alert">
             <div
                 :class="[
                     'flex items-start gap-3 rounded-xl border px-3 py-2 text-sm',
@@ -22,7 +22,7 @@
                     <div v-if="$slots.default" class="text-xs text-gray-700">
                         <slot />
                     </div>
-                    <p v-else-if="message" class="text-xs text-gray-700">
+                    <p v-else-if="message" class="text-xs text-white">
                         {{ message }}
                     </p>
                 </div>
@@ -31,7 +31,7 @@
                 <button
                     v-if="closable"
                     type="button"
-                    class="ml-2 inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-black/5 text-xs text-gray-500"
+                    class="ml-2 inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-black/5 text-xs text-white"
                     @click="handleClose"
                 >
                     <i class="ri-close-line text-base"></i>
@@ -74,11 +74,17 @@ const props = withDefaults(
         closable?: boolean
         /** Where the alert is shown. 'inline' keeps it in the flow; others are fixed corners. */
         position?: Position
+        /**
+         * Auto-hide duration in milliseconds. Set to 0 or null to disable auto-hide.
+         * Defaults to 4000ms.
+         */
+        duration?: number | null
     }>(),
     {
         variant: 'neutral',
         showIcon: true,
         closable: true,
+        duration: 4000,
     },
 )
 
@@ -87,6 +93,7 @@ const emit = defineEmits<{
 }>()
 
 const isVisible = ref(props.modelValue ?? true)
+let hideTimeout: number | null = null
 
 watch(
     () => props.modelValue,
@@ -96,9 +103,25 @@ watch(
     },
 )
 
+const clearHideTimeout = () => {
+    if (hideTimeout !== null) {
+        window.clearTimeout(hideTimeout)
+        hideTimeout = null
+    }
+}
+
+const scheduleAutoHide = () => {
+    clearHideTimeout()
+    if (props.duration && props.duration > 0) {
+        hideTimeout = window.setTimeout(() => {
+            handleClose()
+        }, props.duration)
+    }
+}
+
 const outerClasses = computed(() => {
     const baseInline = 'w-full'
-    const baseFixed = 'fixed z-50 max-w-sm w-[calc(100%-2rem)] pointer-events-none'
+    const baseFixed = 'fixed z-[9999] max-w-sm w-[calc(100%-2rem)] text-white'
 
     switch (props.position) {
         case 'top-left':
@@ -115,43 +138,53 @@ const outerClasses = computed(() => {
     }
 })
 
+const transitionName = computed(() => {
+    if (props.position === 'top-right' || props.position === 'bottom-right') {
+        return 'fade-right'
+    }
+    if (props.position === 'top-left' || props.position === 'bottom-left') {
+        return 'fade-left'
+    }
+    return 'fade'
+})
+
 const variantClasses = computed(() => {
     switch (props.variant) {
         case 'primary':
-            return 'border-primary/20 bg-primary/10 text-primary'
+            return 'border-primary/20 bg-primary'
         case 'secondary':
-            return 'border-secondary/20 bg-secondary/10 text-secondary'
+            return 'border-secondary/20 bg-secondary'
         case 'success':
-            return 'border-success/20 bg-success/10 text-success'
+            return 'border-success/20 bg-success'
         case 'danger':
-            return 'border-danger/20 bg-danger/10 text-danger'
+            return 'border-danger/20 bg-danger'
         case 'warning':
-            return 'border-yellow-300 bg-yellow-50 text-yellow-800'
+            return 'border-yellow-300 bg-yellow-50'
         case 'info':
-            return 'border-sky-300 bg-sky-50 text-sky-800'
+            return 'border-sky-300 bg-sky-50'
         case 'neutral':
         default:
-            return 'border-gray-200 bg-gray-50 text-gray-800'
+            return 'border-gray-200 bg-gray-50'
     }
 })
 
 const iconClass = computed(() => {
     switch (props.variant) {
         case 'success':
-            return 'ri-checkbox-circle-line text-success'
+            return 'ri-checkbox-circle-line'
         case 'danger':
-            return 'ri-error-warning-line text-danger'
+            return 'ri-error-warning-line'
         case 'warning':
-            return 'ri-alert-line text-yellow-500'
+            return 'ri-alert-line'
         case 'info':
-            return 'ri-information-line text-sky-500'
+            return 'ri-information-line'
         case 'primary':
-            return 'ri-information-line text-primary'
+            return 'ri-information-line'
         case 'secondary':
-            return 'ri-information-line text-secondary'
+            return 'ri-information-line'
         case 'neutral':
     default:
-            return 'ri-information-line text-gray-500'
+            return 'ri-information-line'
     }
 })
 
@@ -159,14 +192,37 @@ const handleClose = () => {
     isVisible.value = false
     emit('update:modelValue', false)
 }
+
+watch(
+    () => isVisible.value,
+    (visible) => {
+        if (visible) {
+            scheduleAutoHide()
+        }
+        else {
+            clearHideTimeout()
+        }
+    },
+    { immediate: true },
+)
+
+onBeforeUnmount(() => {
+    clearHideTimeout()
+})
 </script>
 
 <style scoped>
+/* Shared transition timing */
 .fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+.fade-leave-active,
+.fade-right-enter-active,
+.fade-right-leave-active,
+.fade-left-enter-active,
+.fade-left-leave-active {
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
 
+/* Default vertical fade (used for inline & fallback) */
 .fade-enter-from,
 .fade-leave-to {
     opacity: 0;
@@ -177,5 +233,31 @@ const handleClose = () => {
 .fade-leave-from {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* Slide/fade from the right for right-side toasts */
+.fade-right-enter-from,
+.fade-right-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.fade-right-enter-to,
+.fade-right-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Slide/fade from the left for left-side toasts */
+.fade-left-enter-from,
+.fade-left-leave-to {
+  opacity: 0;
+  transform: translateX(-80px); /* symmetric to the left */
+}
+
+.fade-left-enter-to,
+.fade-left-leave-from {
+  opacity: 1;
+  transform: translateX(0);
 }
 </style>
