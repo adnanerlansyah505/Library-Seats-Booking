@@ -7,7 +7,9 @@
 
         <!-- Horizontal slider -->
         <div class="mt-6">
+            <LoadingSpinner v-if="pending" />
             <div
+                v-else
                 class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
             >
                 <article
@@ -60,30 +62,34 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useLibraryStore } from '../stores/library.store'
+import LoadingSpinner from '~/components/Loaders/LoadingSpinner.vue'
 import study1 from '~/assets/images/study-1.png'
 import study2 from '~/assets/images/study-1.png'
 import study3 from '~/assets/images/study-1.png'
 
-const studySpaces = [
-  {
-    id: 1,
-    title: 'Modern Library',
-    description: 'Explore our modern library facilities.',
-    image: study1,
-  },
-  {
-    id: 2,
-    title: 'Quiet Study Room',
-    description: 'Find a quiet space to focus on your work.',
-    image: study2,
-  },
-  {
-    id: 3,
-    title: 'Group Study Area',
-    description: 'Collaborate with your friends in comfort.',
-    image: study3,
-  },
-]
+const studyImages = [study1, study2, study3]
+
+const libraryStore = useLibraryStore()
+const { topLibraries, isLoading, isLoaded } = storeToRefs(libraryStore)
+
+onMounted(() => {
+  if (!isLoaded.value) {
+    libraryStore.fetchLibraries()
+  }
+})
+
+const pending = computed(() => !isLoaded.value || isLoading.value)
+
+const studySpaces = computed(() => {
+    return topLibraries.value.map((lib, index) => ({
+        id: lib.id,
+        title: lib.name,
+        description: lib.description || 'Discover our library facilities.',
+        image: studyImages[index % studyImages.length],
+    }))
+})
 </script>
 
 <style scoped>
