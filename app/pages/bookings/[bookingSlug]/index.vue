@@ -2,10 +2,21 @@
     <div class="px-4 pt-4 pb-32 space-y-6">
         <!-- Individual / Group toggle (static for now) -->
         <div class="grid grid-cols-2 items-center gap-2 bg-gray-300 rounded-lg max-w-sm mx-auto p-1">
-            <button type="button" class="btn btn-white px-4 rounded-lg font-medium">
+            <button
+                type="button"
+                class="px-4 rounded-lg font-medium transition-colors"
+                :class="selectedSeatType === 'individual' ? 'btn btn-white' : 'text-gray-700'
+                "
+                @click="selectedSeatType = 'individual'"
+            >
                 Individual
             </button>
-            <button type="button" class="px-4 font-medium">
+            <button
+                type="button"
+                class="px-4 rounded-lg font-medium transition-colors"
+                :class="selectedSeatType === 'group' ? 'btn btn-white' : 'text-gray-700'"
+                @click="selectedSeatType = 'group'"
+            >
                 Group
             </button>
         </div>
@@ -45,12 +56,22 @@
                         </div>
                     </div>
                     <NuxtLink
-                        :to="`/bookings/${bookingSlug}/seats/${seat.id.toLowerCase()}`"
+                        :to="{
+                            path: `/bookings/${bookingSlug}/seats/${seat.id.toLowerCase()}`,
+                            query: selectedDate ? { date: selectedDate } : {},
+                        }"
                         class="px-3 py-2 rounded-lg btn btn-secondary"
                     >
                         Book Now
                     </NuxtLink>
                 </div>
+
+                <!-- Infinite scroll sentinel -->
+                <div
+                    v-if="reservationStore.hasMore"
+                    ref="loadMoreTrigger"
+                    class="h-4"
+                ></div>
             </div>
             <p v-else class="text-sm text-gray-500 text-center mt-6">
                 No seats available for this date.
@@ -66,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 
@@ -80,19 +101,41 @@ const { seats, isLoading } = storeToRefs(reservationStore)
 
 const isDatePickerOpen = ref(false)
 const selectedDate = ref<string | null>(null)
+const selectedSeatType = ref<'individual' | 'group'>('individual')
+
+// Infinite scroll state
+const loadMoreTrigger = ref<HTMLElement | null>(null)
+let observer: IntersectionObserver | null = null
 
 const bookingSlug = computed(() => route.params.bookingSlug as string)
 
 const selectedDateLabel = computed(() => {
     if (!selectedDate.value) return 'Select date'
-    const d = new Date(selectedDate.value)
+    // selectedDate is in yyyy-mm-dd (local) format; construct a Date in local time
+    const [yearStr, monthStr, dayStr] = selectedDate.value.split('-')
+    const year = Number.parseInt(yearStr ?? '', 10)
+    const month = Number.parseInt(monthStr ?? '', 10)
+    const day = Number.parseInt(dayStr ?? '', 10)
+
+    if (!year || !month || !day) return selectedDate.value
+
+    const d = new Date(year, month - 1, day)
     if (Number.isNaN(d.getTime())) return selectedDate.value
-    return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+
+    return d.toLocaleDateString(undefined, {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+    })
 })
 
 const filteredSeats = computed<Seat[]>(() => {
-    if (!selectedDate.value) return seats.value
-    return seats.value.filter((seat: Seat) => seat.date === selectedDate.value)
+    const byType = seats.value.filter((seat: Seat) => seat.type === selectedSeatType.value)
+
+    if (!selectedDate.value) return byType
+
+    return byType.filter((seat: Seat) => seat.date === selectedDate.value)
 })
 
 const availableCount = computed(
@@ -108,12 +151,43 @@ onMounted(() => {
     if (bookingSlug.value) {
         reservationStore.fetchSeats(bookingSlug.value)
     }
+
+    // Setup intersection observer for lazy loading
+    if (import.meta.client) {
+        observer = new IntersectionObserver((entries) => {
+            const entry = entries[0]
+            if (entry && entry.isIntersecting && reservationStore.hasMore && !isLoading.value && bookingSlug.value) {
+                reservationStore.fetchSeats(
+                    bookingSlug.value,
+                    selectedDate.value || undefined,
+                    reservationStore.currentPage + 1,
+                    true,
+                )
+            }
+        })
+
+        watch(
+            () => loadMoreTrigger.value,
+            (el) => {
+                if (!observer) return
+                if (el) observer.observe(el)
+            },
+            { immediate: true },
+        )
+    }
 })
 
 // Refetch when date changes
 watch(selectedDate, (newDate) => {
     if (bookingSlug.value) {
-        reservationStore.fetchSeats(bookingSlug.value, newDate || undefined)
+        reservationStore.fetchSeats(bookingSlug.value, newDate || undefined, 1, false)
+    }
+})
+
+onBeforeUnmount(() => {
+    if (observer) {
+        observer.disconnect()
+        observer = null
     }
 })
 </script>

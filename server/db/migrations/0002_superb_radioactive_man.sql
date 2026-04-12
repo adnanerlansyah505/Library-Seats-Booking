@@ -1,0 +1,1 @@
+ALTER TABLE "library_seats" ADD COLUMN "opening_hours" varchar(255);

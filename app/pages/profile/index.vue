@@ -56,7 +56,8 @@
                                 id="email"
                                 v-model="profile.email"
                                 type="email"
-                                class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:bg-gray-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                                disabled
                             />
                         </div>
 

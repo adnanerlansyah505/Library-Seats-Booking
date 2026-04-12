@@ -29,13 +29,16 @@
                         <p class="text-primary leading-snug">
                             {{ space.description }}
                         </p>
+                        <p class="text-sm text-gray-500 mt-1">
+                            {{ space.totalSeats }} seat{{ space.totalSeats === 1 ? '' : 's' }} available
+                        </p>
                     </div>
                 </article>
             </div>
         </div>
 
         <div class="flex items-center justify-center mt-4">
-            <nuxt-link to="/bookings" class="py-4 px-6 text-center text-2xl btn btn-primary rounded-lg">
+            <nuxt-link to="/search" class="py-4 px-6 text-center text-2xl btn btn-primary rounded-lg">
                 Check Availability / Book a Seat
             </nuxt-link>
         </div>
@@ -88,6 +91,7 @@ const studySpaces = computed(() => {
         slug: lib.slug,
         title: lib.name,
         description: lib.description || 'Discover our library facilities.',
+        totalSeats: lib.totalSeats ?? 0,
         image: studyImages[index % studyImages.length],
     }))
 })

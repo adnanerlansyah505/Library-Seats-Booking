@@ -24,7 +24,7 @@ export const pageSeo: Record<string, SeoConfig> = {
     //     description: "View and schedule your library seat bookings"
     // },
     search: {
-        headerTitle: "Search Libraries",
+        headerTitle: "Search",
         title: "Search - Library Booking App",
         description: "Search for available library seats"
     },

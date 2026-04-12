@@ -6,6 +6,9 @@ export const useReservationStore = defineStore('reservation', {
 		seats: [] as Seat[],
 		isLoading: false,
 		error: null as string | null,
+		currentPage: 1,
+		totalPages: 0,
+		hasMore: true,
 	}),
 
 	getters: {
@@ -14,20 +17,35 @@ export const useReservationStore = defineStore('reservation', {
 	},
 
 	actions: {
-		async fetchSeats(bookingSlug: string, date?: string) {
+		async fetchSeats(bookingSlug: string, date?: string, page = 1, append = false) {
 			const service = useReservationService()
 
-			this.isLoading = true
+			if (!append) {
+				this.isLoading = true
+			}
 			this.error = null
 
 			try {
-				const response = await service.fetchAvailableSeats(bookingSlug, date)
-				this.seats = response.data
+				const response = await service.fetchAvailableSeats(bookingSlug, date, page)
+
+				if (append) {
+					this.seats = [...this.seats, ...response.data]
+				}
+				else {
+					this.seats = response.data
+				}
+
+				this.currentPage = response.meta.page
+				this.totalPages = response.meta.totalPages
+				this.hasMore = this.currentPage < this.totalPages
 			}
 			catch (error: any) {
 				console.error('Failed to fetch seats:', error)
 				this.error = error?.statusMessage || 'Failed to load seats.'
-				this.seats = []
+				if (!append) {
+					this.seats = []
+				}
+				this.hasMore = false
 			}
 			finally {
 				this.isLoading = false

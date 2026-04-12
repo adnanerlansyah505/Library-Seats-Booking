@@ -3,7 +3,7 @@
         <div v-if="isVisible" :class="outerClasses" id="alert">
             <div
                 :class="[
-                    'flex items-start gap-3 rounded-xl border px-3 py-2 text-sm',
+                    'flex items-center gap-3 rounded-xl border px-3 py-2 text-sm',
                     variantClasses,
                 ]"
             >

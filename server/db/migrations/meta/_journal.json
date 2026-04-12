@@ -15,6 +15,20 @@
       "when": 1775395830805,
       "tag": "0001_wide_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775518604131,
+      "tag": "0002_superb_radioactive_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1775518698376,
+      "tag": "0003_blushing_spiral",
+      "breakpoints": true
     }
   ]
 }

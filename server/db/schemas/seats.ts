@@ -1,4 +1,4 @@
-import { boolean, integer, pgEnum, pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
+import { boolean, integer, pgEnum, pgTable, serial, timestamp, varchar, time } from "drizzle-orm/pg-core";
 import { libraries } from "./libraries";
 
 export const seatTypeEnum = pgEnum("seat_type", ["individual", "group", "computer", "silent"]);
@@ -19,6 +19,10 @@ export const librarySeats = pgTable("library_seats", {
   label: varchar("label", { length: 255 }),
 
   type: seatTypeEnum("type").default("individual"),
+
+  openingHours: varchar("opening_hours", { length: 255 }),
+  openTime: time("open_time"), // (e.g. "08:00:00")
+  closeTime: time("close_time"), // (e.g. "22:00:00")
 
   // Optional extra context for grouping / display
   floor: integer("floor"),

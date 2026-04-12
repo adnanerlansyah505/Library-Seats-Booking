@@ -1,82 +1,87 @@
 <template>
-  <div ref="rootEl" class="flex gap-2">
-    <!-- Date filter -->
-    <div class="relative">
-      <button
-        type="button"
-        class="inline-flex items-center gap-1 rounded-2xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800"
-        @click="toggle('date')"
-      >
-        <span>{{ currentDateLabel }}</span>
-        <i class="ri-arrow-down-s-line text-lg text-gray-500"></i>
-      </button>
-      <div
-        v-if="openFilter === 'date'"
-        class="absolute left-0 mt-2 w-40 rounded-2xl bg-white shadow-lg border border-gray-100 z-10"
-      >
+  <div ref="rootEl" class="flex items-center justify-between flex-wrap gap-2">
+    <div class="flex gap-2">
+      <!-- Date filter -->
+      <div class="relative">
         <button
-          v-for="option in dateOptions"
-          :key="option.value"
           type="button"
-          class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
-          @click="selectDate(option.value)"
+          class="inline-flex items-center gap-1 rounded-2xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800"
+          @click="toggle('date')"
         >
-          {{ option.label }}
+          <span>{{ currentDateLabel }}</span>
+          <i class="ri-arrow-down-s-line text-lg text-gray-500"></i>
         </button>
+        <div
+          v-if="openFilter === 'date'"
+          class="absolute left-0 mt-2 w-40 rounded-2xl bg-white shadow-lg border border-gray-100 z-10"
+        >
+          <button
+            v-for="option in dateOptions"
+            :key="option.value"
+            type="button"
+            class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
+            @click="selectDate(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+      </div>
+  
+      <!-- Time filter -->
+      <div class="relative">
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 rounded-2xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800"
+          @click="toggle('time')"
+        >
+          <span>{{ currentTimeLabel }}</span>
+          <i class="ri-arrow-down-s-line text-lg text-gray-500"></i>
+        </button>
+        <div
+          v-if="openFilter === 'time'"
+          class="absolute left-0 mt-2 w-40 rounded-2xl bg-white shadow-lg border border-gray-100 z-10"
+        >
+          <button
+            v-for="option in timeOptions"
+            :key="option.value"
+            type="button"
+            class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
+            @click="selectTime(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+      </div>
+  
+      <!-- Seat type filter -->
+      <div class="relative">
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 rounded-2xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800"
+          @click="toggle('seatType')"
+        >
+          <span>{{ currentSeatTypeLabel }}</span>
+          <i class="ri-arrow-down-s-line text-lg text-gray-500"></i>
+        </button>
+        <div
+          v-if="openFilter === 'seatType'"
+          class="absolute left-0 mt-2 w-40 rounded-2xl bg-white shadow-lg border border-gray-100 z-10"
+        >
+          <button
+            v-for="option in seatTypeOptions"
+            :key="option.value"
+            type="button"
+            class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
+            @click="selectSeatType(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
       </div>
     </div>
-
-    <!-- Time filter -->
-    <div class="relative">
-      <button
-        type="button"
-        class="inline-flex items-center gap-1 rounded-2xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800"
-        @click="toggle('time')"
-      >
-        <span>{{ currentTimeLabel }}</span>
-        <i class="ri-arrow-down-s-line text-lg text-gray-500"></i>
-      </button>
-      <div
-        v-if="openFilter === 'time'"
-        class="absolute left-0 mt-2 w-40 rounded-2xl bg-white shadow-lg border border-gray-100 z-10"
-      >
-        <button
-          v-for="option in timeOptions"
-          :key="option.value"
-          type="button"
-          class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
-          @click="selectTime(option.value)"
-        >
-          {{ option.label }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Seat type filter -->
-    <div class="relative">
-      <button
-        type="button"
-        class="inline-flex items-center gap-1 rounded-2xl bg-gray-100 px-4 py-2 text-sm font-medium text-gray-800"
-        @click="toggle('seatType')"
-      >
-        <span>{{ currentSeatTypeLabel }}</span>
-        <i class="ri-arrow-down-s-line text-lg text-gray-500"></i>
-      </button>
-      <div
-        v-if="openFilter === 'seatType'"
-        class="absolute left-0 mt-2 w-40 rounded-2xl bg-white shadow-lg border border-gray-100 z-10"
-      >
-        <button
-          v-for="option in seatTypeOptions"
-          :key="option.value"
-          type="button"
-          class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
-          @click="selectSeatType(option.value)"
-        >
-          {{ option.label }}
-        </button>
-      </div>
-    </div>
+    <button type="button" class="text-primary font-medium" @click="clearFilters" v-if="date || time || seatType">
+      Clear Filters
+    </button>
   </div>
 </template>
 
@@ -140,6 +145,13 @@ const selectTime = (value: string) => {
 
 const selectSeatType = (value: string) => {
   emit('update:seatType', value)
+  openFilter.value = null
+}
+
+const clearFilters = () => {
+  emit('update:date', '')
+  emit('update:time', '')
+  emit('update:seatType', '')
   openFilter.value = null
 }
 

@@ -60,27 +60,33 @@ export default defineNuxtPlugin((nuxtApp) => {
      if (response.status === 401 && !isRetry && !skipAuth) {
     const authStore = useAuthStore()
 
-    try {
-     // Avoid multiple simultaneous refresh calls
-     if (!refreshPromise) {
-      refreshPromise = (async () => {
-       await authStore.refreshTokens()
-      })().finally(() => {
-       refreshPromise = null
-      })
-     }
+  try {
+   // Avoid multiple simultaneous refresh calls
+   if (!refreshPromise) {
+    refreshPromise = (async () => {
+     await authStore.refreshTokens()
+    })().finally(() => {
+     refreshPromise = null
+    })
+   }
 
-    // Wait for token refresh
-     await refreshPromise
+  // Wait for token refresh
+   await refreshPromise
 
-     // Retry the original request with new token
-     return await ofetch(request, { ...options, _isRetry: true } as any)
-    }
-    catch (e) {
-     // Refresh failed - logout user
-     await authStore.logout()
-     throw e
-    }
+   // Retry the original request with new token
+   return await ofetch(request, { ...options, _isRetry: true } as any)
+  }
+  catch (e) {
+   // Refresh failed (e.g. no refresh token). Clear auth but do not
+   // force navigation; let the caller handle the 401 (e.g. show an
+   // inline alert or redirect to login).
+   authStore.clearAuthState()
+
+   throw createError({
+    statusCode: 401,
+    statusMessage: 'You must login first to perform this action.',
+   })
+  }
    }
 
   // Other errors - throw unified, human-friendly error

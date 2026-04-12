@@ -119,19 +119,25 @@ const days = computed(() => {
   // leading empty days from previous month
   for (let i = 0; i < startWeekday; i++) {
     const date = new Date(viewYear.value, viewMonth.value, i - startWeekday + 1)
-    result.push({ date, iso: toIso(date), isCurrentMonth: false })
+    result.push({ date, iso: toLocalIso(date), isCurrentMonth: false })
   }
 
   // current month days
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(viewYear.value, viewMonth.value, day)
-    result.push({ date, iso: toIso(date), isCurrentMonth: true })
+    result.push({ date, iso: toLocalIso(date), isCurrentMonth: true })
   }
 
   return result
 })
 
-const toIso = (d: Date) => d.toISOString().slice(0, 10)
+// Build a local-date ISO string (yyyy-mm-dd) without timezone shifting to UTC
+const toLocalIso = (d: Date) => {
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 const isSelected = (iso: string) => tempSelectedDate.value === iso
 
