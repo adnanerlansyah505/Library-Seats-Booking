@@ -8,6 +8,9 @@
         <!-- Horizontal slider -->
         <div class="mt-6">
             <LoadingSpinner v-if="pending" />
+            <div v-else-if="topLibraries.length === 0" class="flex items-center justify-center mb-4">
+                <p class="text-center text-gray-500">No study spaces found.</p>
+            </div>
             <div
                 v-else
                 class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
